@@ -17,6 +17,7 @@
             color: #e0e0e0;
             padding: 20px;
             min-height: 100vh;
+        position: relative;
         }
 
         .container {
@@ -289,6 +290,8 @@
             gap: 15px;
         }
 
+        
+        /* Enhanced visual effects */
         .metric-card {
             background: rgba(255, 255, 255, 0.05);
             border: 1px solid rgba(255, 255, 255, 0.1);
@@ -298,6 +301,14 @@
             flex-direction: column;
             gap: 12px;
             transition: all 0.3s ease;
+            box-shadow: 0 8px 32px rgba(74, 158, 255, 0.1);
+        }
+
+        .metric-card:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+            box-shadow: 0 12px 48px rgba(74, 158, 255, 0.2);
         }
 
         .metric-card:hover {
@@ -823,3 +834,4 @@
     </script>
 </body>
 </html>
+
