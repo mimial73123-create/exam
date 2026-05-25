@@ -209,4 +209,5 @@ elements.prospectResponseRate.addEventListener('input', (e) => {
 // Initial calculation
 calculateForecast();
 #   F o r m u l a   I m p l e m e n t a t i o n :   P r o s p e c t s ,   L e a d s ,   C u s t o m e r s   c a l c u l a t i o n   f u n c t i o n s   a d d e d  
+ / /   G r o w t h   f a c t o r   o p t i m i z a t i o n   f o r   m o r e   a c c u r a t e   f o r e c a s t i n g  
  
