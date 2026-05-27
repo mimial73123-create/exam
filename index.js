@@ -1,214 +1,293 @@
-// Data and calculation logic
+// State management
 const state = {
-    startDate: new Date('2026-05-08'),
-    endDate: new Date('2026-11-04'),
-    totalRevenue: 10000,
-    avgOrderValue: 1000,
-    leadResponseRate: 40,
-    prospectResponseRate: 20,
+    launchingCustomers: 100,
+    customerGrowthRate: 10,
+    avgOrderValue: 50,
+    leadResponseRate: 25,
+    conversionRate: 15,
+    variableCost: 15,
+    fixedCost: 5000,
+    churnRate: 5,
     monthlyData: []
 };
 
-// Get form elements
+// Get DOM elements
 const elements = {
-    startDate: document.getElementById('startDate'),
-    endDate: document.getElementById('endDate'),
-    totalRevenue: document.getElementById('totalRevenue'),
+    launchingCustomers: document.getElementById('launchingCustomers'),
+    customerGrowthRate: document.getElementById('customerGrowthRate'),
     avgOrderValue: document.getElementById('avgOrderValue'),
     leadResponseRate: document.getElementById('leadResponseRate'),
-    prospectResponseRate: document.getElementById('prospectResponseRate'),
-    leadRateValue: document.getElementById('leadRateValue'),
-    prospectRateValue: document.getElementById('prospectRateValue'),
-    prospectsValue: document.getElementById('prospectsValue'),
-    leadsValue: document.getElementById('leadsValue'),
-    customersValue: document.getElementById('customersValue'),
-    prospectsPercent: document.getElementById('prospectsPercent'),
-    leadsPercent: document.getElementById('leadsPercent'),
-    customersPercent: document.getElementById('customersPercent'),
-    prospectsProgressFill: document.getElementById('prospectsProgressFill'),
-    leadsProgressFill: document.getElementById('leadsProgressFill'),
-    customersProgressFill: document.getElementById('customersProgressFill'),
-    chart: document.getElementById('chart'),
-    tooltip: document.getElementById('tooltip')
+    conversionRate: document.getElementById('conversionRate'),
+    variableCost: document.getElementById('variableCost'),
+    fixedCost: document.getElementById('fixedCost'),
+    churnRate: document.getElementById('churnRate'),
+    
+    growthRateDisplay: document.getElementById('growthRateDisplay'),
+    leadRateDisplay: document.getElementById('leadRateDisplay'),
+    conversionRateDisplay: document.getElementById('conversionRateDisplay'),
+    churnRateDisplay: document.getElementById('churnRateDisplay'),
+    
+    totalCustomers: document.getElementById('totalCustomers'),
+    totalCustomersChange: document.getElementById('totalCustomersChange'),
+    totalOrders: document.getElementById('totalOrders'),
+    totalOrdersChange: document.getElementById('totalOrdersChange'),
+    totalRevenue: document.getElementById('totalRevenue'),
+    totalRevenueChange: document.getElementById('totalRevenueChange'),
+    totalCosts: document.getElementById('totalCosts'),
+    totalCostsChange: document.getElementById('totalCostsChange'),
+    netProfit: document.getElementById('netProfit'),
+    netProfitChange: document.getElementById('netProfitChange'),
+    profitMargin: document.getElementById('profitMargin'),
+    profitMarginChange: document.getElementById('profitMarginChange'),
+    
+    kpiAcquisition: document.getElementById('kpiAcquisition'),
+    kpiGrowth: document.getElementById('kpiGrowth'),
+    kpiRevenuePerCustomer: document.getElementById('kpiRevenuePerCustomer'),
+    kpiFulfillment: document.getElementById('kpiFulfillment'),
+    kpiCostPerOrder: document.getElementById('kpiCostPerOrder'),
+    kpiHealth: document.getElementById('kpiHealth'),
+    
+    kpiAcquisitionBar: document.getElementById('kpiAcquisitionBar'),
+    kpiGrowthBar: document.getElementById('kpiGrowthBar'),
+    kpiRevenuePerCustomerBar: document.getElementById('kpiRevenuePerCustomerBar'),
+    kpiFulfillmentBar: document.getElementById('kpiFulfillmentBar'),
+    kpiCostPerOrderBar: document.getElementById('kpiCostPerOrderBar'),
+    kpiHealthBar: document.getElementById('kpiHealthBar'),
+    
+    breakEvenValue: document.getElementById('breakEvenValue'),
+    roiValue: document.getElementById('roiValue'),
+    paybackValue: document.getElementById('paybackValue'),
+    
+    revenueChart: document.getElementById('revenueChart'),
+    monthlyDataContainer: document.getElementById('monthlyDataContainer')
 };
 
-// Calculate number of months between two dates
-function getMonthsBetween(d1, d2) {
-    return (d2.getFullYear() - d1.getFullYear()) * 12 + (d2.getMonth() - d1.getMonth()) + 1;
-}
-
-// Formula 01: Calculate customers needed
-// Customers = Total Revenue / Average Order Value
-function calculateCustomers(revenue, avgValue) {
-    return Math.round(revenue / avgValue);
-}
-
-// Formula 02: Calculate leads needed
-// Leads = Customers * 100 / Lead Response Rate
-function calculateLeads(customers, responseRate) {
-    return Math.round((customers * 100) / responseRate);
-}
-
-// Formula 03: Calculate prospects needed
-// Prospects = Leads * 100 / Prospect Response Rate
-function calculateProspects(leads, responseRate) {
-    return Math.round((leads * 100) / responseRate);
-}
-
-// Calculate monthly forecast data
-function calculateForecast() {
-    const months = getMonthsBetween(state.startDate, state.endDate);
-    const monthlyRevenue = state.totalRevenue / months;
-
+// Calculate monthly data
+function calculateMonthlyData() {
     state.monthlyData = [];
+    let customers = state.launchingCustomers;
+    let totalOrders = 0;
+    let totalRevenue = 0;
+    let totalCosts = 0;
 
-    for (let i = 0; i < months; i++) {
-        // Growth factor (increases over time)
-        const growthFactor = 0.7 + (i / months) * 0.9;
+    for (let month = 1; month <= 12; month++) {
+        // Apply churn
+        customers = Math.floor(customers * (1 - state.churnRate / 100));
         
-        const monthRevenue = monthlyRevenue * growthFactor;
-        const customers = calculateCustomers(monthRevenue, state.avgOrderValue);
-        const leads = calculateLeads(customers, state.leadResponseRate);
-        const prospects = calculateProspects(leads, state.prospectResponseRate);
+        // Add growth
+        const newCustomers = Math.floor(customers * (state.customerGrowthRate / 100));
+        customers = customers + newCustomers;
+
+        // Calculate orders (leads × conversion rate)
+        const leads = Math.floor(customers * (state.leadResponseRate / 100));
+        const orders = Math.floor(leads * (state.conversionRate / 100));
+        const monthRevenue = orders * state.avgOrderValue;
+        const monthCosts = (orders * state.variableCost) + state.fixedCost;
+        const monthProfit = monthRevenue - monthCosts;
+
+        totalOrders += orders;
+        totalRevenue += monthRevenue;
+        totalCosts += monthCosts;
 
         state.monthlyData.push({
-            month: i + 1,
-            prospects: Math.max(5, prospects),
-            leads: Math.max(2, leads),
-            customers: Math.max(1, customers)
+            month,
+            customers: Math.max(0, customers),
+            leads,
+            orders,
+            revenue: monthRevenue,
+            costs: monthCosts,
+            profit: monthProfit
         });
     }
 
-    // Calculate totals
-    const totalProspects = state.monthlyData.reduce((sum, m) => sum + m.prospects, 0);
-    const totalLeads = state.monthlyData.reduce((sum, m) => sum + m.leads, 0);
-    const totalCustomers = state.monthlyData.reduce((sum, m) => sum + m.customers, 0);
-
-    // Update metrics
-    elements.prospectsValue.textContent = totalProspects;
-    elements.leadsValue.textContent = totalLeads;
-    elements.customersValue.textContent = totalCustomers;
-
-    const leadsPercent = Math.round((totalLeads / totalProspects) * 100);
-    const customersPercent = Math.round((totalCustomers / totalLeads) * 100);
-
-    elements.prospectsPercent.textContent = '100%';
-    elements.leadsPercent.textContent = leadsPercent + '%';
-    elements.customersPercent.textContent = customersPercent + '%';
-
-    elements.leadsProgressFill.style.width = leadsPercent + '%';
-    elements.customersProgressFill.style.width = customersPercent + '%';
-
-    // Render chart
-    renderChart();
+    return { totalOrders, totalRevenue, totalCosts };
 }
 
-// Render the chart
-function renderChart() {
-    elements.chart.innerHTML = '';
+// Update display values
+function updateDisplayValues() {
+    elements.growthRateDisplay.textContent = state.customerGrowthRate.toFixed(1) + '%';
+    elements.leadRateDisplay.textContent = state.leadResponseRate.toFixed(1) + '%';
+    elements.conversionRateDisplay.textContent = state.conversionRate.toFixed(1) + '%';
+    elements.churnRateDisplay.textContent = state.churnRate.toFixed(1) + '%';
+}
+
+// Update metrics
+function updateMetrics() {
+    const { totalOrders, totalRevenue, totalCosts } = calculateMonthlyData();
     
-    if (state.monthlyData.length === 0) return;
+    const finalMonthCustomers = state.monthlyData[11]?.customers || state.launchingCustomers;
+    const netProfit = totalRevenue - totalCosts;
+    const profitMargin = totalRevenue > 0 ? (netProfit / totalRevenue) * 100 : 0;
 
-    const maxValue = Math.max(...state.monthlyData.map(m => m.prospects + m.leads + m.customers));
+    // Update totals
+    elements.totalCustomers.textContent = Math.floor(finalMonthCustomers);
+    elements.totalCustomersChange.textContent = `+${Math.floor(finalMonthCustomers - state.launchingCustomers)}`;
+    
+    elements.totalOrders.textContent = totalOrders;
+    elements.totalOrdersChange.textContent = totalOrders > 0 ? `+${totalOrders}` : '0';
+    
+    elements.totalRevenue.textContent = '$' + formatNumber(totalRevenue);
+    elements.totalRevenueChange.textContent = '$' + formatNumber(totalRevenue);
+    
+    elements.totalCosts.textContent = '$' + formatNumber(totalCosts);
+    elements.totalCostsChange.textContent = '$' + formatNumber(totalCosts);
+    
+    elements.netProfit.textContent = '$' + formatNumber(netProfit);
+    elements.netProfitChange.textContent = netProfit >= 0 ? '+' + formatNumber(netProfit) : formatNumber(netProfit);
+    
+    elements.profitMargin.textContent = profitMargin.toFixed(1) + '%';
+    elements.profitMarginChange.textContent = profitMargin.toFixed(1) + '%';
 
-    state.monthlyData.forEach(monthData => {
-        const total = monthData.prospects + monthData.leads + monthData.customers;
-        const prospectHeight = (monthData.prospects / maxValue) * 100;
-        const leadsHeight = (monthData.leads / maxValue) * 100;
-        const customersHeight = (monthData.customers / maxValue) * 100;
+    // Update KPIs
+    const monthlyGrowth = state.customerGrowthRate - state.churnRate;
+    elements.kpiAcquisition.textContent = `+${Math.floor(finalMonthCustomers * state.customerGrowthRate / 100)}/month`;
+    elements.kpiGrowth.textContent = `${monthlyGrowth.toFixed(1)}%`;
+    elements.kpiRevenuePerCustomer.textContent = '$' + (finalMonthCustomers > 0 ? (totalRevenue / finalMonthCustomers).toFixed(2) : '0.00');
+    elements.kpiFulfillment.textContent = totalOrders;
+    elements.kpiCostPerOrder.textContent = '$' + (totalOrders > 0 ? (totalCosts / totalOrders).toFixed(2) : '0.00');
 
-        const barDiv = document.createElement('div');
-        barDiv.className = 'chart-bar';
+    // Health status
+    let health = 'Poor';
+    let healthColor = '#ff6b6b';
+    if (profitMargin > 50) {
+        health = 'Excellent';
+        healthColor = '#00ffaa';
+    } else if (profitMargin > 30) {
+        health = 'Good';
+        healthColor = '#00d4ff';
+    } else if (profitMargin > 0) {
+        health = 'Fair';
+        healthColor = '#ffaa00';
+    }
+    elements.kpiHealth.textContent = health;
+    elements.kpiHealthBar.style.background = healthColor;
+    elements.kpiHealthBar.style.width = Math.max(10, Math.min(100, profitMargin)) + '%';
 
-        const barGroup = document.createElement('div');
-        barGroup.className = 'bar-group';
+    // Update bars
+    elements.kpiAcquisitionBar.style.width = Math.min(100, (monthlyGrowth / 30) * 100) + '%';
+    elements.kpiGrowthBar.style.width = Math.min(100, (monthlyGrowth / 20) * 100) + '%';
+    elements.kpiRevenuePerCustomerBar.style.width = Math.min(100, (totalRevenue / finalMonthCustomers / 500) * 100) + '%';
+    elements.kpiFulfillmentBar.style.width = Math.min(100, (totalOrders / 1000) * 100) + '%';
+    elements.kpiCostPerOrderBar.style.width = Math.min(100, ((totalCosts / totalOrders || 0) / 100) * 100) + '%';
 
-        // Prospects bar
-        const prospectBar = document.createElement('div');
-        prospectBar.className = 'bar-segment prospects';
-        prospectBar.style.height = prospectHeight + '%';
-        prospectBar.addEventListener('mouseenter', () => showTooltip(monthData, event));
-        prospectBar.addEventListener('mouseleave', hideTooltip);
-        barGroup.appendChild(prospectBar);
+    // Scenario analysis
+    const breakEvenMonth = state.monthlyData.find(m => m.profit > 0);
+    elements.breakEvenValue.textContent = breakEvenMonth ? `Month ${breakEvenMonth.month}` : 'Not reached';
+    
+    const roi = totalRevenue > 0 ? ((netProfit / (state.fixedCost * 12)) * 100) : 0;
+    elements.roiValue.textContent = roi.toFixed(1) + '%';
+    
+    // Render chart
+    renderChart();
+    renderMonthlyTable();
+}
 
-        // Leads bar
-        const leadsBar = document.createElement('div');
-        leadsBar.className = 'bar-segment leads';
-        leadsBar.style.height = leadsHeight + '%';
-        leadsBar.addEventListener('mouseenter', () => showTooltip(monthData, event));
-        leadsBar.addEventListener('mouseleave', hideTooltip);
-        barGroup.appendChild(leadsBar);
+// Format large numbers
+function formatNumber(num) {
+    if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
+    if (num >= 1000) return (num / 1000).toFixed(1) + 'K';
+    return Math.floor(num).toString();
+}
 
-        // Customers bar
-        const customersBar = document.createElement('div');
-        customersBar.className = 'bar-segment customers';
-        customersBar.style.height = customersHeight + '%';
-        customersBar.addEventListener('mouseenter', () => showTooltip(monthData, event));
-        customersBar.addEventListener('mouseleave', hideTooltip);
-        barGroup.appendChild(customersBar);
+// Render revenue chart
+function renderChart() {
+    elements.revenueChart.innerHTML = '';
+    const maxRevenue = Math.max(...state.monthlyData.map(m => m.revenue), 1);
+    const chartHeight = 200;
 
-        barDiv.appendChild(barGroup);
-
-        // Add label
+    state.monthlyData.forEach((data, index) => {
+        const bar = document.createElement('div');
+        bar.className = 'chart-bar-group';
+        
+        const revenueHeight = (data.revenue / maxRevenue) * chartHeight;
+        const profitHeight = (Math.max(0, data.profit) / maxRevenue) * chartHeight;
+        
+        const revenueBar = document.createElement('div');
+        revenueBar.className = 'chart-bar revenue-bar';
+        revenueBar.style.height = revenueHeight + 'px';
+        revenueBar.title = `Month ${data.month}: $${data.revenue}`;
+        
+        const profitBar = document.createElement('div');
+        profitBar.className = 'chart-bar profit-bar';
+        profitBar.style.height = Math.max(2, profitHeight) + 'px';
+        profitBar.style.background = data.profit > 0 ? 'linear-gradient(135deg, #00ffaa, #00cc88)' : 'linear-gradient(135deg, #ff6b6b, #ee5a6f)';
+        profitBar.title = `Month ${data.month}: $${data.profit}`;
+        
+        bar.appendChild(revenueBar);
+        bar.appendChild(profitBar);
+        
         const label = document.createElement('div');
-        label.className = 'bar-label';
-        label.textContent = 'Month #' + monthData.month;
-        barDiv.appendChild(label);
-
-        elements.chart.appendChild(barDiv);
+        label.className = 'chart-label';
+        label.textContent = 'M' + data.month;
+        bar.appendChild(label);
+        
+        elements.revenueChart.appendChild(bar);
     });
 }
 
-// Show tooltip
-function showTooltip(monthData, event) {
-    const tooltip = elements.tooltip;
-    tooltip.innerHTML = `Month #${monthData.month}<br>Prospects: ${monthData.prospects}<br>Leads: ${monthData.leads}<br>Customers: ${monthData.customers}`;
-    tooltip.classList.add('visible');
-    tooltip.style.left = event.pageX + 10 + 'px';
-    tooltip.style.top = event.pageY - 30 + 'px';
-}
-
-// Hide tooltip
-function hideTooltip() {
-    elements.tooltip.classList.remove('visible');
+// Render monthly data table
+function renderMonthlyTable() {
+    elements.monthlyDataContainer.innerHTML = '';
+    state.monthlyData.forEach(data => {
+        const row = document.createElement('div');
+        row.className = 'breakdown-row';
+        row.innerHTML = `
+            <div>${data.month}</div>
+            <div>${Math.floor(data.customers)}</div>
+            <div>${data.orders}</div>
+            <div>$${formatNumber(data.revenue)}</div>
+            <div>$${formatNumber(data.costs)}</div>
+            <div class="${data.profit >= 0 ? 'profit' : 'loss'}">$${formatNumber(data.profit)}</div>
+        `;
+        elements.monthlyDataContainer.appendChild(row);
+    });
 }
 
 // Event listeners
-elements.startDate.addEventListener('change', (e) => {
-    state.startDate = new Date(e.target.value);
-    calculateForecast();
+elements.launchingCustomers.addEventListener('input', (e) => {
+    state.launchingCustomers = parseInt(e.target.value) || 1;
+    updateMetrics();
 });
 
-elements.endDate.addEventListener('change', (e) => {
-    state.endDate = new Date(e.target.value);
-    calculateForecast();
-});
-
-elements.totalRevenue.addEventListener('input', (e) => {
-    state.totalRevenue = parseFloat(e.target.value) || 0;
-    calculateForecast();
+elements.customerGrowthRate.addEventListener('input', (e) => {
+    state.customerGrowthRate = parseFloat(e.target.value);
+    updateDisplayValues();
+    updateMetrics();
 });
 
 elements.avgOrderValue.addEventListener('input', (e) => {
     state.avgOrderValue = parseFloat(e.target.value) || 1;
-    calculateForecast();
+    updateMetrics();
 });
 
 elements.leadResponseRate.addEventListener('input', (e) => {
     state.leadResponseRate = parseFloat(e.target.value);
-    elements.leadRateValue.textContent = state.leadResponseRate.toFixed(2) + '%';
-    calculateForecast();
+    updateDisplayValues();
+    updateMetrics();
 });
 
-elements.prospectResponseRate.addEventListener('input', (e) => {
-    state.prospectResponseRate = parseFloat(e.target.value);
-    elements.prospectRateValue.textContent = state.prospectResponseRate.toFixed(2) + '%';
-    calculateForecast();
+elements.conversionRate.addEventListener('input', (e) => {
+    state.conversionRate = parseFloat(e.target.value);
+    updateDisplayValues();
+    updateMetrics();
+});
+
+elements.variableCost.addEventListener('input', (e) => {
+    state.variableCost = parseFloat(e.target.value) || 0;
+    updateMetrics();
+});
+
+elements.fixedCost.addEventListener('input', (e) => {
+    state.fixedCost = parseFloat(e.target.value) || 0;
+    updateMetrics();
+});
+
+elements.churnRate.addEventListener('input', (e) => {
+    state.churnRate = parseFloat(e.target.value);
+    updateDisplayValues();
+    updateMetrics();
 });
 
 // Initial calculation
-calculateForecast();
-#   F o r m u l a   I m p l e m e n t a t i o n :   P r o s p e c t s ,   L e a d s ,   C u s t o m e r s   c a l c u l a t i o n   f u n c t i o n s   a d d e d  
- / /   G r o w t h   f a c t o r   o p t i m i z a t i o n   f o r   m o r e   a c c u r a t e   f o r e c a s t i n g  
- / /   F i x e d   t o o l t i p   p o s i t i o n i n g   o n   c h a r t   h o v e r  
- 
+updateDisplayValues();
+updateMetrics();

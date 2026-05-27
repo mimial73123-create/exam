@@ -3,164 +3,226 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LeadPredictor - Sales Forecast Calculator</title>
+    <title>Advanced Sales Calculator</title>
     <link rel="stylesheet" href="index.css">
 </head>
 <body>
     <div class="container">
         <!-- Header -->
         <div class="header">
-            <div class="header-icon">LP</div>
-            <div class="header-title">LeadPredictor</div>
-        </div>
-
-        <!-- Instructions -->
-        <div class="instructions-panel">
-            <div class="instructions-title">📋 How to Use LeadPredictor</div>
-            <div class="instructions-text">
-                This calculator helps you forecast sales performance and lead conversion rates over a campaign period.
+            <div class="header-icon">📊</div>
+            <div class="header-content">
+                <h1>Sales & Revenue Calculator</h1>
+                <p>Real-time business metrics and forecasting</p>
             </div>
-            <ul class="instructions-list">
-                <li>Set your campaign dates and budget</li>
-                <li>Define total revenue and average order value</li>
-                <li>Adjust lead and prospect response rates</li>
-                <li>View real-time metrics and projections</li>
-                <li>Analyze monthly conversion trends</li>
-            </ul>
         </div>
 
-        <!-- Left Panel: Controls -->
+        <!-- Left Panel - Controls -->
         <div class="left-panel">
-            <div class="form-group">
-                <label>Language</label>
-                <select id="language">
-                    <option value="en">English</option>
-                    <option value="bg">Български</option>
-                    <option value="de">Deutsch</option>
-                </select>
-            </div>
-
-            <div class="form-group">
-                <label>Currency</label>
-                <select id="currency">
-                    <option value="USD">$ US Dollar</option>
-                    <option value="EUR">€ Euro</option>
-                    <option value="GBP">£ British Pound</option>
-                </select>
-            </div>
-
-            <div class="form-group">
-                <label>Campaign Start</label>
-                <input type="date" id="startDate" value="2026-05-08">
-            </div>
-
-            <div class="form-group">
-                <label>Campaign End</label>
-                <input type="date" id="endDate" value="2026-11-04">
-            </div>
-
-            <div class="form-group">
-                <label>Total Revenue</label>
-                <div style="display: flex; gap: 8px;">
-                    <span style="display: flex; align-items: center; color: #666;">$</span>
-                    <input type="number" id="totalRevenue" value="10000" step="100">
+            <div class="panel-section">
+                <h3>Revenue Settings</h3>
+                <div class="form-group">
+                    <label>Starting Customers</label>
+                    <div class="input-wrapper">
+                        <input type="number" id="launchingCustomers" value="100" min="1">
+                        <span class="unit">people</span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Customer Growth Rate</label>
+                    <div class="slider-container">
+                        <input type="range" id="customerGrowthRate" min="0" max="100" value="10" step="0.1">
+                        <span class="value-display" id="growthRateDisplay">10.0%</span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Average Order Value</label>
+                    <div class="input-wrapper">
+                        <span class="currency">$</span>
+                        <input type="number" id="avgOrderValue" value="50" min="1" step="1">
+                    </div>
                 </div>
             </div>
 
-            <div class="form-group">
-                <label>Avg. Order Value</label>
-                <div style="display: flex; gap: 8px;">
-                    <span style="display: flex; align-items: center; color: #666;">$</span>
-                    <input type="number" id="avgOrderValue" value="1000" step="100">
+            <div class="panel-section">
+                <h3>Response Rates</h3>
+                <div class="form-group">
+                    <label>Lead Response Rate</label>
+                    <div class="slider-container">
+                        <input type="range" id="leadResponseRate" min="0" max="100" value="25" step="0.1">
+                        <span class="value-display" id="leadRateDisplay">25.0%</span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Conversion Rate</label>
+                    <div class="slider-container">
+                        <input type="range" id="conversionRate" min="0" max="100" value="15" step="0.1">
+                        <span class="value-display" id="conversionRateDisplay">15.0%</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel-section">
+                <h3>Expenses</h3>
+                <div class="form-group">
+                    <label>Variable Cost Per Order</label>
+                    <div class="input-wrapper">
+                        <span class="currency">$</span>
+                        <input type="number" id="variableCost" value="15" min="0" step="1">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Fixed Monthly Cost</label>
+                    <div class="input-wrapper">
+                        <span class="currency">$</span>
+                        <input type="number" id="fixedCost" value="5000" min="0" step="100">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Customer Churn Rate</label>
+                    <div class="slider-container">
+                        <input type="range" id="churnRate" min="0" max="100" value="5" step="0.1">
+                        <span class="value-display" id="churnRateDisplay">5.0%</span>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <!-- Center Panel: Chart & Sliders -->
+        <!-- Center Panel - Chart & Analysis -->
         <div class="center-panel">
-            <div class="chart-container">
-                <div class="chart-title">Monthly Forecast</div>
-                <div class="chart" id="chart">
-                    <!-- Generated by JavaScript -->
+            <div class="chart-section">
+                <h3>Revenue Forecast</h3>
+                <div class="chart-container">
+                    <div class="chart" id="revenueChart"></div>
                 </div>
-                <div class="chart-axis">
-                    <span>0 people</span>
-                    <span>20 people</span>
-                    <span>40 people</span>
-                    <span>60 people</span>
-                    <span>80 people</span>
-                    <span>100 people</span>
-                    <span>120 people</span>
+                <div class="chart-legend">
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: linear-gradient(135deg, #00d4ff, #0099ff);"></div>
+                        <span>Total Revenue</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: linear-gradient(135deg, #00ffaa, #00cc88);"></div>
+                        <span>Net Profit</span>
+                    </div>
                 </div>
-                <div class="chart-tooltip" id="tooltip"></div>
             </div>
 
-            <div class="sliders-container">
-                <div class="slider-group">
-                    <div class="slider-label">
-                        <span>Lead Response Rate</span>
-                        <span class="slider-value" id="leadRateValue">40.00%</span>
-                    </div>
-                    <input type="range" id="leadResponseRate" min="0" max="100" value="40" step="1">
+            <div class="metrics-grid">
+                <div class="metric-box">
+                    <div class="metric-label">Total Customers</div>
+                    <div class="metric-value" id="totalCustomers">100</div>
+                    <div class="metric-change" id="totalCustomersChange">+10%</div>
                 </div>
+                <div class="metric-box">
+                    <div class="metric-label">Total Orders</div>
+                    <div class="metric-value" id="totalOrders">0</div>
+                    <div class="metric-change" id="totalOrdersChange">0</div>
+                </div>
+                <div class="metric-box">
+                    <div class="metric-label">Total Revenue</div>
+                    <div class="metric-value" id="totalRevenue">$0</div>
+                    <div class="metric-change" id="totalRevenueChange">$0</div>
+                </div>
+                <div class="metric-box">
+                    <div class="metric-label">Total Costs</div>
+                    <div class="metric-value" id="totalCosts">$0</div>
+                    <div class="metric-change" id="totalCostsChange">$0</div>
+                </div>
+                <div class="metric-box profitable">
+                    <div class="metric-label">Net Profit</div>
+                    <div class="metric-value" id="netProfit">$0</div>
+                    <div class="metric-change" id="netProfitChange">0%</div>
+                </div>
+                <div class="metric-box">
+                    <div class="metric-label">Profit Margin</div>
+                    <div class="metric-value" id="profitMargin">0%</div>
+                    <div class="metric-change" id="profitMarginChange">0%</div>
+                </div>
+            </div>
 
-                <div class="slider-group">
-                    <div class="slider-label">
-                        <span>Prospect Response Rate</span>
-                        <span class="slider-value" id="prospectRateValue">20.00%</span>
+            <div class="monthly-breakdown">
+                <h3>Monthly Breakdown</h3>
+                <div class="breakdown-table">
+                    <div class="breakdown-header">
+                        <div>Month</div>
+                        <div>Customers</div>
+                        <div>Orders</div>
+                        <div>Revenue</div>
+                        <div>Costs</div>
+                        <div>Profit</div>
                     </div>
-                    <input type="range" id="prospectResponseRate" min="0" max="100" value="20" step="1">
+                    <div id="monthlyDataContainer"></div>
                 </div>
             </div>
         </div>
 
-        <!-- Right Panel: Metrics -->
+        <!-- Right Panel - KPIs -->
         <div class="right-panel">
-            <div class="metric-card">
-                <div class="metric-header">
-                    <div class="metric-title">
-                        <div class="metric-icon">📊</div>
-                        Prospects
+            <div class="kpi-section">
+                <h3>Key Performance Indicators</h3>
+                
+                <div class="kpi-item">
+                    <div class="kpi-label">Customer Acquisition</div>
+                    <div class="kpi-value" id="kpiAcquisition">+10/month</div>
+                    <div class="kpi-bar">
+                        <div class="kpi-fill" id="kpiAcquisitionBar" style="width: 30%;"></div>
                     </div>
-                    <div class="progress-percent" id="prospectsPercent">100%</div>
                 </div>
-                <div class="metric-value" id="prospectsValue">125</div>
-                <div class="metric-progress">
-                    <div class="progress-bar">
-                        <div class="progress-fill" id="prospectsProgressFill" style="width: 100%;"></div>
+
+                <div class="kpi-item">
+                    <div class="kpi-label">Monthly Growth</div>
+                    <div class="kpi-value" id="kpiGrowth">+10.0%</div>
+                    <div class="kpi-bar">
+                        <div class="kpi-fill" id="kpiGrowthBar" style="width: 20%;"></div>
+                    </div>
+                </div>
+
+                <div class="kpi-item">
+                    <div class="kpi-label">Revenue Per Customer</div>
+                    <div class="kpi-value" id="kpiRevenuePerCustomer">$0.00</div>
+                    <div class="kpi-bar">
+                        <div class="kpi-fill" id="kpiRevenuePerCustomerBar" style="width: 40%;"></div>
+                    </div>
+                </div>
+
+                <div class="kpi-item">
+                    <div class="kpi-label">Order Fulfillment</div>
+                    <div class="kpi-value" id="kpiFulfillment">0</div>
+                    <div class="kpi-bar">
+                        <div class="kpi-fill" id="kpiFulfillmentBar" style="width: 0%;"></div>
+                    </div>
+                </div>
+
+                <div class="kpi-item">
+                    <div class="kpi-label">Cost per Order</div>
+                    <div class="kpi-value" id="kpiCostPerOrder">$15.00</div>
+                    <div class="kpi-bar">
+                        <div class="kpi-fill" id="kpiCostPerOrderBar" style="width: 30%;"></div>
+                    </div>
+                </div>
+
+                <div class="kpi-item">
+                    <div class="kpi-label">Business Health</div>
+                    <div class="kpi-value" id="kpiHealth">Poor</div>
+                    <div class="kpi-bar">
+                        <div class="kpi-fill" id="kpiHealthBar" style="width: 20%; background: #ff6b6b;"></div>
                     </div>
                 </div>
             </div>
 
-            <div class="metric-card">
-                <div class="metric-header">
-                    <div class="metric-title">
-                        <div class="metric-icon">👥</div>
-                        Leads
-                    </div>
-                    <div class="progress-percent" id="leadsPercent">20%</div>
+            <div class="kpi-section">
+                <h3>Scenario Analysis</h3>
+                <div class="scenario-item">
+                    <div class="scenario-label">Break-even Point</div>
+                    <div class="scenario-value" id="breakEvenValue">Not reached</div>
                 </div>
-                <div class="metric-value" id="leadsValue">25</div>
-                <div class="metric-progress">
-                    <div class="progress-bar">
-                        <div class="progress-fill" id="leadsProgressFill" style="width: 20%;"></div>
-                    </div>
+                <div class="scenario-item">
+                    <div class="scenario-label">ROI (12 months)</div>
+                    <div class="scenario-value" id="roiValue">0%</div>
                 </div>
-            </div>
-
-            <div class="metric-card">
-                <div class="metric-header">
-                    <div class="metric-title">
-                        <div class="metric-icon">🎯</div>
-                        Customers
-                    </div>
-                    <div class="progress-percent" id="customersPercent">8%</div>
-                </div>
-                <div class="metric-value" id="customersValue">10</div>
-                <div class="metric-progress">
-                    <div class="progress-bar">
-                        <div class="progress-fill" id="customersProgressFill" style="width: 8%;"></div>
-                    </div>
+                <div class="scenario-item">
+                    <div class="scenario-label">Payback Period</div>
+                    <div class="scenario-value" id="paybackValue">∞ months</div>
                 </div>
             </div>
         </div>
